@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gemini Chat</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+<html lang="en"><head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+  <title>Gemini Chat</title>  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>  
   <style>
     body {
       margin: 0;
@@ -17,6 +16,7 @@
       width: 100%;
       max-width: 420px;
       padding: 20px;
+      box-sizing: border-box;
     }
     .card {
       background: white;
@@ -36,6 +36,7 @@
       border: 1px solid #ccc;
       font-size: 1rem;
       outline: none;
+      box-sizing: border-box;
     }
     .password-box {
       position: relative;
@@ -124,35 +125,10 @@
       margin-top: 10px;
       color: #888;
     }
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      font-size: 1.2rem;
-      font-weight: bold;
-      z-index: 1000;
-      text-align: center;
-      display: none;
-      animation: fadeInOut 2.5s ease;
-    }
-    .popup.success { color: green; }
-    .popup.error { color: crimson; }
-    .popup .icon { font-size: 3rem; margin-bottom: 10px; }
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translate(-50%, -60%); }
-      10% { opacity: 1; transform: translate(-50%, -50%); }
-      90% { opacity: 1; }
-      100% { opacity: 0; transform: translate(-50%, -40%); }
-    }
   </style>
-</head>
-<body>
+</head><body>
   <div class="container">
+    <!-- Login/Signup -->
     <div class="card" id="auth-box">
       <h2 id="auth-title">Sign Up</h2>
       <input type="text" id="username" placeholder="Username" required />
@@ -171,6 +147,7 @@
       <div class="toggle" onclick="toggleAuth()">Already have an account? Log in</div>
     </div>
 
+    <!-- Chat UI -->
     <div class="card chatbox" id="chat-box">
       <div class="topbar">
         <span id="user-info"></span>
@@ -185,11 +162,6 @@
     </div>
   </div>
 
-  <div id="popup" class="popup">
-    <div class="icon" id="popup-icon">✅</div>
-    <div id="popup-message">Success</div>
-  </div>
-
   <audio id="ping" src="/sound.mp3" preload="auto"></audio>
   <script>
     const authBox = document.getElementById("auth-box");
@@ -200,6 +172,7 @@
     const toggleBtn = document.querySelector(".toggle-pass");
     const userInfo = document.getElementById("user-info");
     const ping = document.getElementById("ping");
+
     let showPassword = false;
 
     function togglePassword() {
@@ -207,17 +180,6 @@
       showPassword = !showPassword;
       passInput.type = showPassword ? "text" : "password";
       toggleBtn.innerText = showPassword ? "Hide" : "Show";
-    }
-
-    function showPopup(type, message) {
-      const popup = document.getElementById("popup");
-      const icon = document.getElementById("popup-icon");
-      const msg = document.getElementById("popup-message");
-      popup.className = "popup " + type;
-      icon.textContent = type === "success" ? "✅" : "❌";
-      msg.textContent = message;
-      popup.style.display = "block";
-      setTimeout(() => { popup.style.display = "none"; }, 2500);
     }
 
     function toggleAuth() {
@@ -240,34 +202,27 @@
       const password = document.getElementById("password").value.trim();
       const avatar = document.getElementById("avatar").value;
       const mode = document.getElementById("auth-title").innerText;
-      if (!username || !password) {
-        loadingMsg.style.display = "none";
-        showPopup("error", "Fill in all fields");
-        return;
-      }
+      if (!username || !password) return alert("Fill in all fields");
       loadingMsg.style.display = "block";
       setTimeout(() => {
         const users = JSON.parse(localStorage.getItem("users") || "[]");
         if (mode === "Sign Up") {
           if (users.find(u => u.username === username)) {
             loadingMsg.style.display = "none";
-            showPopup("error", "Username already exists!");
-            return;
+            return alert("Username already exists!");
           }
           users.push({ username, password, avatar });
           localStorage.setItem("users", JSON.stringify(users));
-          showPopup("success", "Account created!");
+          alert("Account created!");
           toggleAuth();
         } else {
           const user = users.find(u => u.username === username && u.password === password);
           if (!user) {
             loadingMsg.style.display = "none";
-            showPopup("error", "Invalid credentials");
-            return;
+            return alert("Invalid credentials");
           }
           localStorage.setItem("loggedIn", "true");
           localStorage.setItem("activeUser", JSON.stringify(user));
-          showPopup("success", "Login successful!");
           showChat();
         }
         loadingMsg.style.display = "none";
