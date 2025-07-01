@@ -3,7 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <title>Gemini Chatbot</title>
-  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4ff;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+    .chatbox {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    #messages {
+      min-height: 200px;
+      margin-bottom: 15px;
+    }
+    .user, .bot {
+      margin: 10px 0;
+    }
+    .user {
+      text-align: right;
+      color: blue;
+    }
+    .bot {
+      text-align: left;
+      color: green;
+    }
+    form {
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+    }
+    button {
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
   <div class="chatbox">
@@ -20,12 +62,14 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const prompt = document.getElementById("prompt").value;
+      const input = document.getElementById("prompt");
+      const prompt = input.value.trim();
+      if (!prompt) return;
 
       messages.innerHTML += `<div class="user"><b>You:</b> ${prompt}</div>`;
-      document.getElementById("prompt").value = "";
+      input.value = "";
 
-      const res = await fetch("/api/gemini?ask=" + encodeURIComponent(prompt));
+      const res = await fetch(`/api/gemini?ask=${encodeURIComponent(prompt)}`);
       const data = await res.json();
 
       messages.innerHTML += `<div class="bot"><b>Gemini:</b> ${data.reply}</div>`;
