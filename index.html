@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gemini Flash Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
       background: linear-gradient(135deg, #ffb6f9, #b28dff);
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Poppins', sans-serif;
       display: flex;
       justify-content: center;
     }
@@ -49,6 +50,18 @@
       text-align: left;
       color: #d63384;
       margin-bottom: 8px;
+    }
+
+    .typing {
+      display: inline-block;
+      border-right: 2px solid #d63384;
+      animation: blink 0.7s steps(1) infinite;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
     }
 
     form {
@@ -98,6 +111,20 @@
     const form = document.getElementById("chat-form");
     const messages = document.getElementById("messages");
 
+    function typeText(element, text, speed = 20) {
+      let i = 0;
+      function type() {
+        if (i < text.length) {
+          element.innerHTML = text.slice(0, i + 1) + '<span class="typing"></span>';
+          i++;
+          setTimeout(type, speed);
+        } else {
+          element.innerHTML = text; // Remove cursor at end
+        }
+      }
+      type();
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const input = document.getElementById("prompt");
@@ -110,7 +137,15 @@
       const res = await fetch(`/api/gemini?ask=${encodeURIComponent(ask)}`);
       const data = await res.json();
 
-      messages.innerHTML += `<div class="bot"><b>Gemini:</b> ${data.reply}</div>`;
+      const botDiv = document.createElement("div");
+      botDiv.className = "bot";
+      botDiv.innerHTML = "<b>Gemini:</b> ";
+      messages.appendChild(botDiv);
+
+      const textSpan = document.createElement("span");
+      botDiv.appendChild(textSpan);
+
+      typeText(textSpan, data.reply);
     });
   </script>
 </body>
