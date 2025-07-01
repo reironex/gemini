@@ -5,29 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gemini Chat</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.343.0/font/lucide.css"/>
   <style>
-    :root {
-      --bg-light: linear-gradient(135deg, #ffb6f9, #b28dff);
-      --bg-dark: #1e1e2f;
-      --card-light: white;
-      --card-dark: #2c2c3a;
-      --text-light: #000;
-      --text-dark: #eee;
-      --accent: #b300b3;
-      --gradient: linear-gradient(135deg, #ff85e4, #c488ff);
-    }
-
     body {
       margin: 0;
-      background: var(--bg-light);
+      background: linear-gradient(135deg, #ffb6f9, #b28dff);
       font-family: 'Poppins', sans-serif;
       display: flex;
       justify-content: center;
-      transition: background 0.3s;
-    }
-    body.dark {
-      background: var(--bg-dark);
     }
     .container {
       width: 100%;
@@ -35,18 +19,14 @@
       padding: 20px;
     }
     .card {
-      background: var(--card-light);
+      background: white;
       padding: 20px;
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      transition: background 0.3s;
-    }
-    body.dark .card {
-      background: var(--card-dark);
     }
     h2 {
       text-align: center;
-      color: var(--accent);
+      color: #b300b3;
     }
     input, select, button {
       width: 100%;
@@ -56,21 +36,6 @@
       border: 1px solid #ccc;
       font-size: 1rem;
       outline: none;
-      box-sizing: border-box;
-    }
-    input, select, button, .card, h2, .toggle, .bot, .user {
-      transition: all 0.3s;
-    }
-    body.dark input,
-    body.dark select,
-    body.dark button,
-    body.dark h2,
-    body.dark .toggle,
-    body.dark .bot,
-    body.dark .user {
-      background-color: #444 !important;
-      color: var(--text-dark) !important;
-      border-color: #555;
     }
     .password-box {
       position: relative;
@@ -84,14 +49,14 @@
       color: #666;
     }
     button {
-      background: var(--gradient);
+      background: linear-gradient(135deg, #ff85e4, #c488ff);
       color: white;
       font-weight: bold;
       border: none;
       cursor: pointer;
     }
     button:hover {
-      opacity: 0.95;
+      background: linear-gradient(135deg, #ff6fe4, #a073ff);
     }
     .toggle {
       text-align: center;
@@ -133,12 +98,10 @@
       align-items: center;
       font-size: 0.95rem;
       margin-bottom: 10px;
-      flex-wrap: wrap;
-      gap: 5px;
     }
     .topbar span {
       font-weight: bold;
-      color: var(--accent);
+      color: #b300b3;
     }
     .logout-btn {
       background: none;
@@ -161,18 +124,35 @@
       margin-top: 10px;
       color: #888;
     }
-    .dark-toggle {
-      background: none;
-      border: none;
-      color: #999;
-      cursor: pointer;
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       font-size: 1.2rem;
+      font-weight: bold;
+      z-index: 1000;
+      text-align: center;
+      display: none;
+      animation: fadeInOut 2.5s ease;
+    }
+    .popup.success { color: green; }
+    .popup.error { color: crimson; }
+    .popup .icon { font-size: 3rem; margin-bottom: 10px; }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -60%); }
+      10% { opacity: 1; transform: translate(-50%, -50%); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -40%); }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Login/Signup -->
     <div class="card" id="auth-box">
       <h2 id="auth-title">Sign Up</h2>
       <input type="text" id="username" placeholder="Username" required />
@@ -181,29 +161,20 @@
         <span class="toggle-pass" onclick="togglePassword()">Show</span>
       </div>
       <select id="avatar">
-        <option value="https://i.pravatar.cc/40?img=1">Girl</option>
-        <option value="https://i.pravatar.cc/40?img=2">Boy</option>
-        <option value="https://i.pravatar.cc/40?img=3">Cool</option>
-        <option value="https://i.pravatar.cc/40?img=4">Cat</option>
+        <option value="https://i.pravatar.cc/40?img=1">👩 Girl</option>
+        <option value="https://i.pravatar.cc/40?img=2">🧑 Boy</option>
+        <option value="https://i.pravatar.cc/40?img=3">😎 Cool</option>
+        <option value="https://i.pravatar.cc/40?img=4">🐱 Cat</option>
       </select>
       <button onclick="handleAuth()">Create Account</button>
       <div class="loading" id="loading-msg" style="display:none;">Loading...</div>
       <div class="toggle" onclick="toggleAuth()">Already have an account? Log in</div>
     </div>
-    <!-- Chat UI -->
+
     <div class="card chatbox" id="chat-box">
       <div class="topbar">
         <span id="user-info"></span>
-        <select id="change-avatar" onchange="changeAvatar()">
-          <option value="https://i.pravatar.cc/40?img=1">👤 Girl</option>
-          <option value="https://i.pravatar.cc/40?img=2">👤 Boy</option>
-          <option value="https://i.pravatar.cc/40?img=3">👤 Cool</option>
-          <option value="https://i.pravatar.cc/40?img=4">👤 Cat</option>
-        </select>
         <button class="logout-btn" onclick="logout()">Logout</button>
-        <button class="dark-toggle" onclick="toggleDark()">
-          <i class="lucide-moon"></i>
-        </button>
       </div>
       <h2>💬 Gemini Chatbot</h2>
       <div id="messages"></div>
@@ -213,6 +184,12 @@
       </form>
     </div>
   </div>
+
+  <div id="popup" class="popup">
+    <div class="icon" id="popup-icon">✅</div>
+    <div id="popup-message">Success</div>
+  </div>
+
   <audio id="ping" src="/sound.mp3" preload="auto"></audio>
   <script>
     const authBox = document.getElementById("auth-box");
@@ -230,6 +207,17 @@
       showPassword = !showPassword;
       passInput.type = showPassword ? "text" : "password";
       toggleBtn.innerText = showPassword ? "Hide" : "Show";
+    }
+
+    function showPopup(type, message) {
+      const popup = document.getElementById("popup");
+      const icon = document.getElementById("popup-icon");
+      const msg = document.getElementById("popup-message");
+      popup.className = "popup " + type;
+      icon.textContent = type === "success" ? "✅" : "❌";
+      msg.textContent = message;
+      popup.style.display = "block";
+      setTimeout(() => { popup.style.display = "none"; }, 2500);
     }
 
     function toggleAuth() {
@@ -252,27 +240,34 @@
       const password = document.getElementById("password").value.trim();
       const avatar = document.getElementById("avatar").value;
       const mode = document.getElementById("auth-title").innerText;
-      if (!username || !password) return alert("Fill in all fields");
+      if (!username || !password) {
+        loadingMsg.style.display = "none";
+        showPopup("error", "Fill in all fields");
+        return;
+      }
       loadingMsg.style.display = "block";
       setTimeout(() => {
         const users = JSON.parse(localStorage.getItem("users") || "[]");
         if (mode === "Sign Up") {
           if (users.find(u => u.username === username)) {
             loadingMsg.style.display = "none";
-            return alert("Username already exists!");
+            showPopup("error", "Username already exists!");
+            return;
           }
           users.push({ username, password, avatar });
           localStorage.setItem("users", JSON.stringify(users));
-          alert("Account created!");
+          showPopup("success", "Account created!");
           toggleAuth();
         } else {
           const user = users.find(u => u.username === username && u.password === password);
           if (!user) {
             loadingMsg.style.display = "none";
-            return alert("Invalid credentials");
+            showPopup("error", "Invalid credentials");
+            return;
           }
           localStorage.setItem("loggedIn", "true");
           localStorage.setItem("activeUser", JSON.stringify(user));
+          showPopup("success", "Login successful!");
           showChat();
         }
         loadingMsg.style.display = "none";
@@ -282,7 +277,6 @@
     function showChat() {
       const user = JSON.parse(localStorage.getItem("activeUser"));
       userInfo.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.username}`;
-      document.getElementById("change-avatar").value = user.avatar;
       authBox.style.display = "none";
       chatBox.style.display = "block";
       form.style.display = "flex";
@@ -292,20 +286,6 @@
       localStorage.removeItem("loggedIn");
       localStorage.removeItem("activeUser");
       location.reload();
-    }
-
-    function changeAvatar() {
-      const user = JSON.parse(localStorage.getItem("activeUser"));
-      const newAvatar = document.getElementById("change-avatar").value;
-      user.avatar = newAvatar;
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      const idx = users.findIndex(u => u.username === user.username);
-      if (idx > -1) {
-        users[idx].avatar = newAvatar;
-        localStorage.setItem("users", JSON.stringify(users));
-      }
-      localStorage.setItem("activeUser", JSON.stringify(user));
-      userInfo.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.username}`;
     }
 
     if (localStorage.getItem("loggedIn") === "true") {
@@ -322,10 +302,6 @@
           ping.play();
         }
       }, speed);
-    }
-
-    function toggleDark() {
-      document.body.classList.toggle("dark");
     }
 
     form.addEventListener("submit", async (e) => {
