@@ -6,10 +6,10 @@
   <title>Gemini Flash Chatbot</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f0ff;
       margin: 0;
       padding: 0;
+      background: linear-gradient(135deg, #ffb6f9, #b28dff);
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       justify-content: center;
     }
@@ -23,14 +23,15 @@
     .chatbox {
       background: white;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
 
     h2 {
       margin-top: 0;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       text-align: center;
+      color: #b300b3;
     }
 
     #messages {
@@ -40,48 +41,51 @@
 
     .user {
       text-align: right;
-      color: blue;
+      color: #8000ff;
       margin-bottom: 8px;
     }
 
     .bot {
       text-align: left;
-      color: green;
+      color: #d63384;
       margin-bottom: 8px;
     }
 
     form {
       display: flex;
-      gap: 6px;
+      gap: 8px;
     }
 
     input[type="text"] {
       flex: 1;
       padding: 10px;
-      border-radius: 6px;
+      border-radius: 12px;
       border: 1px solid #ccc;
       font-size: 1rem;
+      outline: none;
     }
 
     button {
-      padding: 10px 14px;
-      border-radius: 6px;
+      padding: 10px 16px;
+      border-radius: 12px;
       border: none;
-      background: #4b6fff;
+      background: linear-gradient(135deg, #ff85e4, #c488ff);
       color: white;
       font-weight: bold;
       font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background: #2f4bcc;
+      background: linear-gradient(135deg, #ff6fe4, #a073ff);
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="chatbox">
-      <h2>Gemini Flash Chatbot</h2>
+      <h2>💬 Gemini Flash Chatbot</h2>
       <div id="messages"></div>
       <form id="chat-form">
         <input type="text" id="prompt" placeholder="Ask something..." required />
