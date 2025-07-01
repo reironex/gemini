@@ -109,6 +109,8 @@
       align-items: center;
       font-size: 0.95rem;
       margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 5px;
     }
     .topbar span {
       font-weight: bold;
@@ -161,6 +163,12 @@
     <div class="card chatbox" id="chat-box">
       <div class="topbar">
         <span id="user-info"></span>
+        <select id="change-avatar" onchange="changeAvatar()">
+          <option value="https://i.pravatar.cc/40?img=1">👩 Girl</option>
+          <option value="https://i.pravatar.cc/40?img=2">🧑 Boy</option>
+          <option value="https://i.pravatar.cc/40?img=3">😎 Cool</option>
+          <option value="https://i.pravatar.cc/40?img=4">🐱 Cat</option>
+        </select>
         <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
       <h2>💬 Gemini Chatbot</h2>
@@ -240,6 +248,7 @@
     function showChat() {
       const user = JSON.parse(localStorage.getItem("activeUser"));
       userInfo.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.username}`;
+      document.getElementById("change-avatar").value = user.avatar;
       authBox.style.display = "none";
       chatBox.style.display = "block";
       form.style.display = "flex";
@@ -249,6 +258,22 @@
       localStorage.removeItem("loggedIn");
       localStorage.removeItem("activeUser");
       location.reload();
+    }
+
+    function changeAvatar() {
+      const user = JSON.parse(localStorage.getItem("activeUser"));
+      const newAvatar = document.getElementById("change-avatar").value;
+      user.avatar = newAvatar;
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const idx = users.findIndex(u => u.username === user.username);
+      if (idx > -1) {
+        users[idx].avatar = newAvatar;
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+
+      localStorage.setItem("activeUser", JSON.stringify(user));
+      userInfo.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.username}`;
     }
 
     if (localStorage.getItem("loggedIn") === "true") {
