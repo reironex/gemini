@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gemini Chatbot</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="chatbox">
+    <h2>Gemini Chatbot</h2>
+    <div id="messages"></div>
+    <form id="chat-form">
+      <input type="text" id="prompt" placeholder="Ask something..." required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById("chat-form");
+    const messages = document.getElementById("messages");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const prompt = document.getElementById("prompt").value;
+
+      messages.innerHTML += `<div class="user"><b>You:</b> ${prompt}</div>`;
+      document.getElementById("prompt").value = "";
+
+      const res = await fetch("/api/gemini?ask=" + encodeURIComponent(prompt));
+      const data = await res.json();
+
+      messages.innerHTML += `<div class="bot"><b>Gemini:</b> ${data.reply}</div>`;
+    });
+  </script>
+</body>
+</h
+tml>
