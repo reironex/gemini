@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gemini Flash Chatbot</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gemini Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
     body {
       margin: 0;
-      padding: 0;
       background: linear-gradient(135deg, #ffb6f9, #b28dff);
       font-family: 'Poppins', sans-serif;
       display: flex;
@@ -33,7 +32,7 @@
       color: #b300b3;
     }
 
-    input, button {
+    input, select, button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
@@ -41,6 +40,19 @@
       border: 1px solid #ccc;
       font-size: 1rem;
       outline: none;
+    }
+
+    .password-box {
+      position: relative;
+    }
+
+    .toggle-pass {
+      position: absolute;
+      top: 12px;
+      right: 15px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: #666;
     }
 
     button {
@@ -101,44 +113,69 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
       font-size: 0.95rem;
-      color: #666;
+      margin-bottom: 10px;
     }
 
     .topbar span {
-      font-weight: 600;
+      font-weight: bold;
       color: #b300b3;
     }
 
     .logout-btn {
-      background: transparent;
-      color: #d63384;
+      background: none;
       border: none;
-      cursor: pointer;
+      color: #d63384;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      color: #888;
     }
   </style>
 </head>
 <body>
   <div class="container">
 
-    <!-- Login/Signup Form -->
+    <!-- Login/Signup -->
     <div class="card" id="auth-box">
       <h2 id="auth-title">Sign Up</h2>
       <input type="text" id="username" placeholder="Username" required />
-      <input type="password" id="password" placeholder="Password" required />
+      <div class="password-box">
+        <input type="password" id="password" placeholder="Password" required />
+        <span class="toggle-pass" onclick="togglePassword()">Show</span>
+      </div>
+      <select id="avatar">
+        <option value="https://i.pravatar.cc/40?img=1">👩 Girl</option>
+        <option value="https://i.pravatar.cc/40?img=2">🧑 Boy</option>
+        <option value="https://i.pravatar.cc/40?img=3">😎 Cool</option>
+        <option value="https://i.pravatar.cc/40?img=4">🐱 Cat</option>
+      </select>
       <button onclick="handleAuth()">Create Account</button>
+      <div class="loading" id="loading-msg" style="display:none;">Loading...</div>
       <div class="toggle" onclick="toggleAuth()">Already have an account? Log in</div>
     </div>
 
     <!-- Chat UI -->
     <div class="card chatbox" id="chat-box">
       <div class="topbar">
-        Logged in as: <span id="logged-user"></span>
+        <span id="user-info"></span>
         <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
-      <h2>💬 Gemini Flash Chatbot</h2>
+      <h2>💬 Gemini Chatbot</h2>
       <div id="messages"></div>
       <form id="chat-form">
         <input type="text" id="prompt" placeholder="Ask something..." required />
@@ -155,8 +192,19 @@
     const chatBox = document.getElementById("chat-box");
     const form = document.getElementById("chat-form");
     const messages = document.getElementById("messages");
+    const loadingMsg = document.getElementById("loading-msg");
+    const toggleBtn = document.querySelector(".toggle-pass");
+    const userInfo = document.getElementById("user-info");
     const ping = document.getElementById("ping");
-    const loggedUser = document.getElementById("logged-user");
+
+    let showPassword = false;
+
+    function togglePassword() {
+      const passInput = document.getElementById("password");
+      showPassword = !showPassword;
+      passInput.type = showPassword ? "text" : "password";
+      toggleBtn.innerText = showPassword ? "Hide" : "Show";
+    }
 
     function toggleAuth() {
       const title = document.getElementById("auth-title");
@@ -177,32 +225,45 @@
     function handleAuth() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
+      const avatar = document.getElementById("avatar").value;
       const mode = document.getElementById("auth-title").innerText;
 
-      if (!username || !password) {
-        alert("Please fill in both fields.");
-        return;
-      }
+      if (!username || !password) return alert("Fill in all fields");
 
-      if (mode === "Sign Up") {
-        localStorage.setItem("user", JSON.stringify({ username, password }));
-        alert("Account created! You can now log in.");
-        toggleAuth();
-      } else {
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
-        if (user.username === username && user.password === password) {
-          localStorage.setItem("loggedIn", "true");
-          localStorage.setItem("activeUser", username);
-          showChat();
+      loadingMsg.style.display = "block";
+
+      setTimeout(() => {
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+        if (mode === "Sign Up") {
+          if (users.find(u => u.username === username)) {
+            loadingMsg.style.display = "none";
+            return alert("Username already exists!");
+          }
+
+          users.push({ username, password, avatar });
+          localStorage.setItem("users", JSON.stringify(users));
+          alert("Account created!");
+          toggleAuth();
         } else {
-          alert("Invalid credentials.");
+          const user = users.find(u => u.username === username && u.password === password);
+          if (!user) {
+            loadingMsg.style.display = "none";
+            return alert("Invalid credentials");
+          }
+
+          localStorage.setItem("loggedIn", "true");
+          localStorage.setItem("activeUser", JSON.stringify(user));
+          showChat();
         }
-      }
+
+        loadingMsg.style.display = "none";
+      }, 1000);
     }
 
     function showChat() {
-      const currentUser = localStorage.getItem("activeUser");
-      loggedUser.textContent = currentUser;
+      const user = JSON.parse(localStorage.getItem("activeUser"));
+      userInfo.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.username}`;
       authBox.style.display = "none";
       chatBox.style.display = "block";
       form.style.display = "flex";
@@ -214,7 +275,6 @@
       location.reload();
     }
 
-    // Auto login check
     if (localStorage.getItem("loggedIn") === "true") {
       showChat();
     }
