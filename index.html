@@ -6,6 +6,9 @@
   <title>Gemini Chat</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       background: linear-gradient(135deg, #ffb6f9, #b28dff);
@@ -30,6 +33,7 @@
     }
     input, select, button {
       width: 100%;
+      max-width: 100%;
       padding: 10px;
       margin-top: 10px;
       border-radius: 12px;
@@ -40,6 +44,8 @@
     }
     .password-box {
       position: relative;
+      width: 100%;
+      box-sizing: border-box;
     }
     .toggle-pass {
       position: absolute;
