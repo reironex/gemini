@@ -1,61 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>Gemini Chatbot</title>
+  <title>Gemini Chat</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f4f4ff;
-      display: flex;
-      justify-content: center;
-      padding: 40px;
-    }
-    .chatbox {
-      width: 100%;
-      max-width: 600px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #ccc;
-    }
-    #messages {
-      min-height: 200px;
-      margin-bottom: 15px;
-    }
-    .user, .bot {
-      margin: 10px 0;
-    }
-    .user {
-      text-align: right;
-      color: blue;
-    }
-    .bot {
-      text-align: left;
-      color: green;
-    }
-    form {
-      display: flex;
-      gap: 10px;
-    }
-    input {
-      flex: 1;
-      padding: 10px;
-    }
-    button {
-      padding: 10px;
-    }
+    body { font-family: sans-serif; background: #eef; padding: 20px; }
+    .chatbox { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
+    .user { color: blue; text-align: right; margin: 5px 0; }
+    .bot { color: green; text-align: left; margin: 5px 0; }
   </style>
 </head>
 <body>
   <div class="chatbox">
-    <h2>Gemini Chatbot</h2>
+    <h2>Gemini Flash Chatbot</h2>
     <div id="messages"></div>
     <form id="chat-form">
       <input type="text" id="prompt" placeholder="Ask something..." required />
       <button type="submit">Send</button>
     </form>
   </div>
+
   <script>
     const form = document.getElementById("chat-form");
     const messages = document.getElementById("messages");
@@ -63,13 +27,13 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const input = document.getElementById("prompt");
-      const prompt = input.value.trim();
-      if (!prompt) return;
+      const ask = input.value.trim();
+      if (!ask) return;
 
-      messages.innerHTML += `<div class="user"><b>You:</b> ${prompt}</div>`;
+      messages.innerHTML += `<div class="user"><b>You:</b> ${ask}</div>`;
       input.value = "";
 
-      const res = await fetch(`/api/gemini?ask=${encodeURIComponent(prompt)}`);
+      const res = await fetch(`/api/gemini?ask=${encodeURIComponent(ask)}`);
       const data = await res.json();
 
       messages.innerHTML += `<div class="bot"><b>Gemini:</b> ${data.reply}</div>`;
