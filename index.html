@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gemini Flash Chatbot</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -21,7 +21,7 @@
       padding: 20px;
     }
 
-    .chatbox {
+    .card {
       background: white;
       padding: 20px;
       border-radius: 16px;
@@ -29,15 +29,42 @@
     }
 
     h2 {
-      margin-top: 0;
-      font-size: 1.5rem;
       text-align: center;
       color: #b300b3;
     }
 
-    #messages {
-      min-height: 200px;
-      margin-bottom: 15px;
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    button {
+      background: linear-gradient(135deg, #ff85e4, #c488ff);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #ff6fe4, #a073ff);
+    }
+
+    .toggle {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #555;
+      cursor: pointer;
+    }
+
+    .chatbox, #chat-form {
+      display: none;
     }
 
     .user {
@@ -52,39 +79,8 @@
       margin-bottom: 8px;
     }
 
-    form {
-      display: flex;
-      gap: 8px;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      border-radius: 12px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    button {
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #ff85e4, #c488ff);
-      color: white;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: linear-gradient(135deg, #ff6fe4, #a073ff);
-    }
-
     .typing-dots {
       display: inline-block;
-      text-align: center;
       font-size: 2rem;
     }
 
@@ -93,29 +89,29 @@
       animation: blink 1.2s infinite;
     }
 
-    .typing-dots span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .typing-dots span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes blink {
-      0%, 80%, 100% {
-        opacity: 0;
-        transform: translateY(0);
-      }
-      40% {
-        opacity: 1;
-        transform: translateY(-6px);
-      }
+      0%, 80%, 100% { opacity: 0; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-6px); }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="chatbox">
+
+    <!-- Login/Signup Form -->
+    <div class="card" id="auth-box">
+      <h2 id="auth-title">Sign Up</h2>
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button onclick="handleAuth()">Create Account</button>
+      <div class="toggle" onclick="toggleAuth()">Already have an account? Log in</div>
+    </div>
+
+    <!-- Chat UI -->
+    <div class="card chatbox" id="chat-box">
       <h2>💬 Gemini Flash Chatbot</h2>
       <div id="messages"></div>
       <form id="chat-form">
@@ -123,11 +119,74 @@
         <button type="submit">Send</button>
       </form>
     </div>
+
   </div>
 
+  <audio id="ping" src="/sound.mp3" preload="auto"></audio>
+
   <script>
+    const authBox = document.getElementById("auth-box");
+    const chatBox = document.getElementById("chat-box");
     const form = document.getElementById("chat-form");
     const messages = document.getElementById("messages");
+    const ping = document.getElementById("ping");
+
+    // Show chat if already logged in
+    if (localStorage.getItem("loggedIn") === "true") {
+      authBox.style.display = "none";
+      chatBox.style.display = "block";
+      form.style.display = "flex";
+    }
+
+    function toggleAuth() {
+      const title = document.getElementById("auth-title");
+      const btn = authBox.querySelector("button");
+      const toggle = authBox.querySelector(".toggle");
+
+      if (title.innerText === "Sign Up") {
+        title.innerText = "Log In";
+        btn.innerText = "Login";
+        toggle.innerText = "Don't have an account? Sign up";
+      } else {
+        title.innerText = "Sign Up";
+        btn.innerText = "Create Account";
+        toggle.innerText = "Already have an account? Log in";
+      }
+    }
+
+    function handleAuth() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const mode = document.getElementById("auth-title").innerText;
+
+      if (mode === "Sign Up") {
+        localStorage.setItem("user", JSON.stringify({ username, password }));
+        alert("Account created! You can now log in.");
+        toggleAuth();
+      } else {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        if (user.username === username && user.password === password) {
+          localStorage.setItem("loggedIn", "true");
+          authBox.style.display = "none";
+          chatBox.style.display = "block";
+          form.style.display = "flex";
+        } else {
+          alert("Invalid credentials.");
+        }
+      }
+    }
+
+    function typeText(element, text, speed = 20) {
+      let i = 0;
+      const interval = setInterval(() => {
+        element.textContent += text.charAt(i);
+        i++;
+        if (i === text.length) {
+          clearInterval(interval);
+          ping.play();
+        }
+      }, speed);
+    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -138,7 +197,6 @@
       messages.innerHTML += `<div class="user"><b>You:</b> ${ask}</div>`;
       input.value = "";
 
-      // Show typing animation
       const typing = document.createElement("div");
       typing.className = "bot";
       typing.id = "typing-indicator";
@@ -148,11 +206,15 @@
       const res = await fetch(`/api/gemini?ask=${encodeURIComponent(ask)}`);
       const data = await res.json();
 
-      // Remove typing animation
       typing.remove();
 
-      // Show response
-      messages.innerHTML += `<div class="bot"><b>Gemini:</b> ${data.reply}</div>`;
+      const botDiv = document.createElement("div");
+      botDiv.className = "bot";
+      botDiv.innerHTML = "<b>Gemini:</b> <span></span>";
+      messages.appendChild(botDiv);
+
+      const span = botDiv.querySelector("span");
+      typeText(span, data.reply);
     });
   </script>
 </body>
