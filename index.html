@@ -5,13 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gemini Chat</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.343.0/font/lucide.css"/>
   <style>
+    :root {
+      --bg-light: linear-gradient(135deg, #ffb6f9, #b28dff);
+      --bg-dark: #1e1e2f;
+      --card-light: white;
+      --card-dark: #2c2c3a;
+      --text-light: #000;
+      --text-dark: #eee;
+      --accent: #b300b3;
+      --gradient: linear-gradient(135deg, #ff85e4, #c488ff);
+    }
+
     body {
       margin: 0;
-      background: linear-gradient(135deg, #ffb6f9, #b28dff);
+      background: var(--bg-light);
       font-family: 'Poppins', sans-serif;
       display: flex;
       justify-content: center;
+      transition: background 0.3s;
+    }
+    body.dark {
+      background: var(--bg-dark);
     }
     .container {
       width: 100%;
@@ -19,14 +35,18 @@
       padding: 20px;
     }
     .card {
-      background: white;
+      background: var(--card-light);
       padding: 20px;
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    body.dark .card {
+      background: var(--card-dark);
     }
     h2 {
       text-align: center;
-      color: #b300b3;
+      color: var(--accent);
     }
     input, select, button {
       width: 100%;
@@ -37,6 +57,20 @@
       font-size: 1rem;
       outline: none;
       box-sizing: border-box;
+    }
+    input, select, button, .card, h2, .toggle, .bot, .user {
+      transition: all 0.3s;
+    }
+    body.dark input,
+    body.dark select,
+    body.dark button,
+    body.dark h2,
+    body.dark .toggle,
+    body.dark .bot,
+    body.dark .user {
+      background-color: #444 !important;
+      color: var(--text-dark) !important;
+      border-color: #555;
     }
     .password-box {
       position: relative;
@@ -50,14 +84,14 @@
       color: #666;
     }
     button {
-      background: linear-gradient(135deg, #ff85e4, #c488ff);
+      background: var(--gradient);
       color: white;
       font-weight: bold;
       border: none;
       cursor: pointer;
     }
     button:hover {
-      background: linear-gradient(135deg, #ff6fe4, #a073ff);
+      opacity: 0.95;
     }
     .toggle {
       text-align: center;
@@ -87,21 +121,11 @@
       display: inline-block;
       animation: blink 1.2s infinite;
     }
-    .typing-dots span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    .typing-dots span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes blink {
-      0%, 80%, 100% {
-        opacity: 0;
-        transform: translateY(0);
-      }
-      40% {
-        opacity: 1;
-        transform: translateY(-6px);
-      }
+      0%, 80%, 100% { opacity: 0; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-6px); }
     }
     .topbar {
       display: flex;
@@ -114,7 +138,7 @@
     }
     .topbar span {
       font-weight: bold;
-      color: #b300b3;
+      color: var(--accent);
     }
     .logout-btn {
       background: none;
@@ -137,6 +161,13 @@
       margin-top: 10px;
       color: #888;
     }
+    .dark-toggle {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
@@ -150,10 +181,10 @@
         <span class="toggle-pass" onclick="togglePassword()">Show</span>
       </div>
       <select id="avatar">
-        <option value="https://i.pravatar.cc/40?img=1">👩 Girl</option>
-        <option value="https://i.pravatar.cc/40?img=2">🧑 Boy</option>
-        <option value="https://i.pravatar.cc/40?img=3">😎 Cool</option>
-        <option value="https://i.pravatar.cc/40?img=4">🐱 Cat</option>
+        <option value="https://i.pravatar.cc/40?img=1">Girl</option>
+        <option value="https://i.pravatar.cc/40?img=2">Boy</option>
+        <option value="https://i.pravatar.cc/40?img=3">Cool</option>
+        <option value="https://i.pravatar.cc/40?img=4">Cat</option>
       </select>
       <button onclick="handleAuth()">Create Account</button>
       <div class="loading" id="loading-msg" style="display:none;">Loading...</div>
@@ -164,12 +195,15 @@
       <div class="topbar">
         <span id="user-info"></span>
         <select id="change-avatar" onchange="changeAvatar()">
-          <option value="https://i.pravatar.cc/40?img=1">👩 Girl</option>
-          <option value="https://i.pravatar.cc/40?img=2">🧑 Boy</option>
-          <option value="https://i.pravatar.cc/40?img=3">😎 Cool</option>
-          <option value="https://i.pravatar.cc/40?img=4">🐱 Cat</option>
+          <option value="https://i.pravatar.cc/40?img=1">👤 Girl</option>
+          <option value="https://i.pravatar.cc/40?img=2">👤 Boy</option>
+          <option value="https://i.pravatar.cc/40?img=3">👤 Cool</option>
+          <option value="https://i.pravatar.cc/40?img=4">👤 Cat</option>
         </select>
         <button class="logout-btn" onclick="logout()">Logout</button>
+        <button class="dark-toggle" onclick="toggleDark()">
+          <i class="lucide-moon"></i>
+        </button>
       </div>
       <h2>💬 Gemini Chatbot</h2>
       <div id="messages"></div>
@@ -264,14 +298,12 @@
       const user = JSON.parse(localStorage.getItem("activeUser"));
       const newAvatar = document.getElementById("change-avatar").value;
       user.avatar = newAvatar;
-
       const users = JSON.parse(localStorage.getItem("users") || "[]");
       const idx = users.findIndex(u => u.username === user.username);
       if (idx > -1) {
         users[idx].avatar = newAvatar;
         localStorage.setItem("users", JSON.stringify(users));
       }
-
       localStorage.setItem("activeUser", JSON.stringify(user));
       userInfo.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.username}`;
     }
@@ -290,6 +322,10 @@
           ping.play();
         }
       }, speed);
+    }
+
+    function toggleDark() {
+      document.body.classList.toggle("dark");
     }
 
     form.addEventListener("submit", async (e) => {
