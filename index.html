@@ -1,23 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Gemini Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini Flash Chatbot</title>
   <style>
-    body { font-family: sans-serif; background: #eef; padding: 20px; }
-    .chatbox { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
-    .user { color: blue; text-align: right; margin: 5px 0; }
-    .bot { color: green; text-align: left; margin: 5px 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    .chatbox {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      text-align: center;
+    }
+
+    #messages {
+      min-height: 200px;
+      margin-bottom: 15px;
+    }
+
+    .user {
+      text-align: right;
+      color: blue;
+      margin-bottom: 8px;
+    }
+
+    .bot {
+      text-align: left;
+      color: green;
+      margin-bottom: 8px;
+    }
+
+    form {
+      display: flex;
+      gap: 6px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: none;
+      background: #4b6fff;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background: #2f4bcc;
+    }
   </style>
 </head>
 <body>
-  <div class="chatbox">
-    <h2>Gemini Flash Chatbot</h2>
-    <div id="messages"></div>
-    <form id="chat-form">
-      <input type="text" id="prompt" placeholder="Ask something..." required />
-      <button type="submit">Send</button>
-    </form>
+  <div class="container">
+    <div class="chatbox">
+      <h2>Gemini Flash Chatbot</h2>
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input type="text" id="prompt" placeholder="Ask something..." required />
+        <button type="submit">Send</button>
+      </form>
+    </div>
   </div>
 
   <script>
